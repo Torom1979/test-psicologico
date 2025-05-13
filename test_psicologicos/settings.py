@@ -77,25 +77,13 @@ WSGI_APPLICATION = 'test_psicologicos.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/4.2/ref/settings/#databases
 
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'db_test_psicologicos',
-        'USER': 'user_test_psico',
-        'PASSWORD': 'psico123',
-        'HOST': 'localhost',
-        'PORT': '5432',
-    },
+import dj_database_url
+import os
 
-    'origen': {
-        'ENGINE': 'django.db.backends.postgresql_psycopg2',
-        'NAME': 'evaluaciones',
-        'HOST': 'localhost',
-        'USER': 'postgres',
-        'PASSWORD': '123456',
-        'PORT': 5432,
-    },
+DATABASES = {
+    'default': dj_database_url.config(default=os.environ.get('DATABASE_URL'))
 }
+
 
 
 AUTH_USER_MODEL = 'core.Usuario'  # ✅ Modelo personalizado
