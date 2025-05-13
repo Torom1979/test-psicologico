@@ -8,6 +8,7 @@ cffi==1.16.0
 colorama==0.4.6
 dill==0.3.7
 distlib==0.3.7
+dj-database-url==2.3.0
 Django==4.2.7
 django-bootstrap4==23.2
 django-ckeditor==6.7.0
@@ -28,5 +29,6 @@ pylint-plugin-utils==0.8.2
 soupsieve==2.5
 sqlparse==0.4.4
 tomlkit==0.12.2
+typing_extensions==4.13.2
 tzdata==2023.3
 virtualenv==20.24.6
