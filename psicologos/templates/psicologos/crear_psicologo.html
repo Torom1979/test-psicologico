@@ -1,0 +1,56 @@
+{% extends 'psicologos/base.html' %}
+
+{% block page_content %}
+<div class="container-fluid">
+    <div class="row justify-content-center">
+        <div class="col-xl-6 col-lg-8 col-md-10">
+            <div class="card shadow mb-4 border-left-primary">
+                <div class="card-header py-3 bg-primary text-white">
+                    <h6 class="m-0 font-weight-bold text-white text-center">Crear Cuenta de Psicólogo</h6>
+                </div>
+                <div class="card-body">
+                    <form method="post">
+                        {% csrf_token %}
+                        <div class="form-group">
+                            <label for="username"><strong>Usuario:</strong></label>
+                            <input type="text" name="username" id="username" class="form-control form-control-lg" placeholder="Ingrese nombre de usuario" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="first_name"><strong>Nombre:</strong></label>
+                            <input type="text" name="first_name" id="first_name" class="form-control form-control-lg" placeholder="Ingrese nombre" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="last_name"><strong>Apellido:</strong></label>
+                            <input type="text" name="last_name" id="last_name" class="form-control form-control-lg" placeholder="Ingrese apellido" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="email"><strong>Email:</strong></label>
+                            <input type="email" name="email" id="email" class="form-control form-control-lg" placeholder="Ingrese correo electrónico" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="password"><strong>Contraseña:</strong></label>
+                            <input type="password" name="password" id="password" class="form-control form-control-lg" placeholder="Ingrese una contraseña segura" required>
+                        </div>
+                        <button type="submit" class="btn btn-primary btn-block btn-lg mt-4">
+                            <i class="fas fa-user-plus"></i> Crear Cuenta
+                        </button>
+                    </form>
+
+                    {% if messages %}
+                        <div class="mt-4">
+                            {% for message in messages %}
+                                <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                                    {{ message }}
+                                    <button type="button" class="close" data-dismiss="alert" aria-label="Cerrar">
+                                        <span aria-hidden="true">&times;</span>
+                                    </button>
+                                </div>
+                            {% endfor %}
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

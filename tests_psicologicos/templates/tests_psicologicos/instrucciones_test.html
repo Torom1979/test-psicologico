@@ -1,0 +1,333 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Instrucciones - Test {{ tipo_test|title }}</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+    <style>
+        body { background-color: #f8f9fa; }
+        .card { animation: fadeIn 0.6s ease-in-out; }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .instructions-box {
+            background: #f1f3f5;
+            border-left: 5px solid #007bff;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            font-size: 1.1rem;
+        }
+        .instructions-title { font-weight: bold; font-size: 1.2rem; color: #0056b3; }
+        .highlight { color: #dc3545; font-weight: bold; }
+    </style>
+</head>
+<body class="container mt-5">
+    <div class="card shadow-lg p-4">
+        <h1 class="text-center text-primary">📜 Test: {{ tipo_test|title }}</h1>
+        <h4 class="alert-heading text-center mt-3">Instrucciones</h4>
+        <hr>
+
+        <div class="instructions-box">
+            {% if tipo_test == "wonderlic" %}
+                <p class="instructions-title">📌 Lea atentamente antes de comenzar</p>
+                <ul>
+                    <li><strong>Este test mide su habilidad para resolver problemas.</strong></li>
+                    <li>Contiene <strong>50 preguntas</strong> de opción múltiple.</li>
+                    <li>Dispondrá de <span class="highlight">12 minutos</span> para contestar tantas como pueda.</li>
+                    <li>Las preguntas aumentan de dificultad progresivamente.</li>
+                </ul>
+
+                <p class="instructions-title">✏ Ejemplo A:</p>
+                <p>COSECHAR es lo contrario de:</p>
+                <form>
+                    <div class="form-check">
+                        <input class="form-check-input" type="radio" name="ejemplo_a" disabled>
+                        <label class="form-check-label">1️⃣ Obtener</label>
+                    </div>
+                    <div class="form-check">
+                        <input class="form-check-input" type="radio" name="ejemplo_a" disabled>
+                        <label class="form-check-label">2️⃣ Animar</label>
+                    </div>
+                    <div class="form-check">
+                        <input class="form-check-input" type="radio" name="ejemplo_a" disabled>
+                        <label class="form-check-label">3️⃣ Continuar</label>
+                    </div>
+                    <div class="form-check">
+                        <input class="form-check-input" type="radio" name="ejemplo_a" disabled>
+                        <label class="form-check-label">4️⃣ Salir</label>
+                    </div>
+                    <div class="form-check">
+                        <input class="form-check-input" type="radio" name="ejemplo_a" checked disabled>
+                        <label class="form-check-label highlight">5️⃣ Sembrar ✅</label>
+                    </div>
+                </form>
+
+                <p class="instructions-title">✏ Ejemplo B:</p>
+                <p>El papel se vende a 23 centavos por paquete. ¿Cuánto costarán cuatro paquetes?</p>
+                <form>
+                    <input type="text" class="form-control w-25" placeholder="✍ Escriba su respuesta aquí" disabled value="92">
+                </form>
+                <p class="highlight">✔ Respuesta correcta: 92 centavos</p>
+
+                <p class="instructions-title">✏ Ejemplo C:</p>
+                <p>MINERO – MENOR ¿Estas palabras tienen significado...?</p>
+                <form>
+                    <div class="form-check">
+                        <input class="form-check-input" type="radio" name="ejemplo_c" disabled>
+                        <label class="form-check-label">1️⃣ Similar</label>
+                    </div>
+                    <div class="form-check">
+                        <input class="form-check-input" type="radio" name="ejemplo_c" disabled>
+                        <label class="form-check-label">2️⃣ Contradictorio</label>
+                    </div>
+                    <div class="form-check">
+                        <input class="form-check-input" type="radio" name="ejemplo_c" checked disabled>
+                        <label class="form-check-label highlight">3️⃣ Ni similar ni contradictorio ✅</label>
+                    </div>
+                </form>
+
+                <p class="instructions-title">🚨 IMPORTANTE</p>
+                <ul>
+                    <li>Después de 12 minutos, el test **finalizará automáticamente**.</li>
+                    <li>Debe presionar **"Enviar" inmediatamente** o sus respuestas **NO serán registradas**.</li>
+                </ul>
+            {% elif tipo_test == "ic" %}
+                <p class="instructions-title">📌 ¿En qué consiste?</p>
+                <p>El test mide <strong>inteligencia numérica y lógica.</strong></p>
+
+                <p class="instructions-title">⏳ Tiempo disponible</p>
+                <p class="highlight">7 minutos con 30 segundos</p>
+
+                <p class="instructions-title">✅ ¿Cómo responder?</p>
+                <ul>
+                    <li>Lee atentamente cada afirmación.</li>
+                    <li>Selecciona las casillas correctas en cada pregunta.</li>
+                </ul>
+
+            {% elif tipo_test == "bip" %}
+                <p class="instructions-title">📌 ¿En qué consiste?</p>
+                <p>
+                    El Test BIP evalúa <strong>tus costumbres, actitudes y formas de actuar en el entorno laboral</strong>. 
+                    Se compone de <strong>210 frases</strong> que deberás leer y responder con sinceridad.
+                </p>
+
+                <p class="instructions-title">✅ ¿Cómo responder?</p>
+                <ul>
+                    <li>Lee atentamente cada afirmación.</li>
+                    <li>Para cada una, selecciona una opción de una <strong>escala de seis niveles (A a F)</strong> según tu grado de acuerdo.</li>
+                    <li>Solo puedes marcar una opción por afirmación.</li>
+                </ul>
+
+                <table class="table table-bordered text-center w-75 mx-auto mb-4">
+                    <thead class="table-light">
+                        <tr>
+                            <th class="text-center">Letra</th>
+                            <th class="text-start">Significado</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr><td><strong>A</strong></td><td class="text-start">Completamente cierta</td></tr>
+                        <tr><td><strong>B</strong></td><td class="text-start">Bastante cierta</td></tr>
+                        <tr><td><strong>C</strong></td><td class="text-start">Ligeramente más cierta que falsa</td></tr>
+                        <tr><td><strong>D</strong></td><td class="text-start">Ligeramente más falsa que cierta</td></tr>
+                        <tr><td><strong>E</strong></td><td class="text-start">Bastante falsa</td></tr>
+                        <tr><td><strong>F</strong></td><td class="text-start">Completamente falsa</td></tr>
+                    </tbody>
+                </table>
+
+                <p class="instructions-title">✏ Ejemplo:</p>
+                <p><strong>Frase:</strong> Me gusta participar en discusiones.</p>
+                <div class="form-check form-check-inline">
+                    <input class="form-check-input" type="radio" disabled>
+                    <label class="form-check-label">A</label>
+                </div>
+                <div class="form-check form-check-inline">
+                    <input class="form-check-input" type="radio" disabled>
+                    <label class="form-check-label">B</label>
+                </div>
+                <div class="form-check form-check-inline">
+                    <input class="form-check-input" type="radio" disabled checked>
+                    <label class="form-check-label highlight">C ✅</label>
+                </div>
+                <div class="form-check form-check-inline">
+                    <input class="form-check-input" type="radio" disabled>
+                    <label class="form-check-label">D</label>
+                </div>
+                <div class="form-check form-check-inline">
+                    <input class="form-check-input" type="radio" disabled>
+                    <label class="form-check-label">E</label>
+                </div>
+                <div class="form-check form-check-inline">
+                    <input class="form-check-input" type="radio" disabled>
+                    <label class="form-check-label">F</label>
+                </div>
+
+                <p class="highlight mt-2">✔ En este ejemplo, seleccionaste la letra <strong>C</strong> porque piensas que la frase es ligeramente más cierta que falsa en tu caso.</p>
+
+                <p class="instructions-title">🚨 IMPORTANTE</p>
+                <ul>
+                    <li>No hay respuestas correctas ni incorrectas.</li>
+                    <li>Responde con <strong>sinceridad</strong>, sin intentar dar la “mejor” imagen.</li>
+                    <li>No dejes preguntas sin contestar.</li>
+                    <li>Si una situación no la has vivido, <strong>imagina cómo actuarías</strong> en ese caso.</li>
+                </ul>
+
+                <p class="instructions-title">⏳ Tiempo disponible</p>
+                <p class="highlight">2 horas</p>
+
+            {% elif tipo_test == "disc" %}
+                <p class="instructions-title">📌 ¿En qué consiste?</p>
+                <p>Evalúa tu <strong>estilo de comportamiento y personalidad</strong> en situaciones laborales y sociales.</p>
+
+                <p class="instructions-title">✅ ¿Cómo responder?</p>
+                <ul>
+                    <li>Se te presentarán <strong>grupos de 4 palabras</strong>.</li>
+                    <li><span class="highlight">Debes seleccionar:</span></li>
+                    <ul>
+                        <li>La palabra que <strong>más te representa</strong> en la columna <strong>“+”</strong>.</li>
+                        <li>La palabra que <strong>menos te representa</strong> en la columna <strong>“−”</strong>.</li>
+                    </ul>
+                    <li><strong>No puedes seleccionar la misma palabra en ambas columnas.</strong></li>
+                </ul>
+
+                <p class="instructions-title">✏ Ejemplo:</p>
+                <table class="table table-bordered text-center align-middle w-75 mx-auto">
+                    <thead class="table-light">
+                        <tr>
+                            <th class="text-start">Ítem</th>
+                            <th>+</th>
+                            <th>−</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td class="text-start fw-semibold">
+                                Ejemplo 1:
+                                <ul class="list-unstyled mb-0">
+                                    <li>Trabajador/a</li>
+                                    <li>Tranquilo/a</li>
+                                    <li>Analítico/a</li>
+                                    <li>Pacífico/a</li>
+                                </ul>
+                            </td>
+                            <td>
+                                <div class="form-check"><input class="form-check-input" type="radio" disabled checked></div>
+                                <div class="form-check"><input class="form-check-input" type="radio" disabled></div>
+                                <div class="form-check"><input class="form-check-input" type="radio" disabled></div>
+                                <div class="form-check"><input class="form-check-input" type="radio" disabled></div>
+                            </td>
+                            <td>
+                                <div class="form-check"><input class="form-check-input" type="radio" disabled></div>
+                                <div class="form-check"><input class="form-check-input" type="radio" disabled checked></div>
+                                <div class="form-check"><input class="form-check-input" type="radio" disabled></div>
+                                <div class="form-check"><input class="form-check-input" type="radio" disabled></div>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <p class="highlight text-center">✔ En este ejemplo, seleccionaste "Trabajador/a" como la que más te representa y "Tranquilo/a" como la que menos.</p>
+
+                <p class="instructions-title">⏳ Tiempo disponible</p>
+                <p class="highlight">45 minutos</p>
+            
+            {% elif tipo_test == "kostick" %}
+                <p class="instructions-title">📌 ¿En qué consiste?</p>
+                <p>Este test evalúa tu <strong>estilo de comportamiento personal y laboral</strong> mediante la comparación entre pares de frases.</p>
+
+                <p class="instructions-title">✅ ¿Cómo responder?</p>
+                <ul>
+                    <li>Se te presentarán <strong>90 pares de frases</strong>.</li>
+                    <li>En cada par, debes <span class="highlight">elegir la frase que más se parezca a ti</span>.</li>
+                    <li>Solo puedes seleccionar <strong>una frase por ítem</strong>.</li>
+                    <li>No puedes elegir ambas ni dejar la pregunta sin responder.</li>
+                    <li>Responde con sinceridad, <strong>no hay respuestas correctas o incorrectas</strong>.</li>
+                    <li>Debes responder <strong>rápidamente y sin pensar demasiado</strong>.</li>
+                </ul>
+
+                <p class="instructions-title">✏ Ejemplo:</p>
+                <p>¿Cuál de estas frases te representa mejor?</p>
+                <form class="w-75 mx-auto">
+                    <div class="form-check mb-2">
+                        <input class="form-check-input" type="radio" disabled checked>
+                        <label class="form-check-label">
+                            A. Me gusta trabajar en equipo y colaborar con otros.
+                        </label>
+                    </div>
+                    <div class="form-check">
+                        <input class="form-check-input" type="radio" disabled>
+                        <label class="form-check-label">
+                            B. Prefiero asumir responsabilidades de forma individual.
+                        </label>
+                    </div>
+                </form>
+                <p class="highlight text-center mt-3">✔ En este ejemplo, seleccionaste la frase A porque te identificas más con el trabajo en equipo.</p>
+
+                <p class="instructions-title">⏳ Tiempo disponible</p>
+                <p class="highlight">15 minutos</p>
+
+                <p class="instructions-title">🚨 IMPORTANTE</p>
+                <ul>
+                    <li>No omitas respuestas. Todas las preguntas deben ser respondidas.</li>
+                    <li>Contesta de forma <strong>honesta</strong> y espontánea.</li>
+                    <li>Cuando el tiempo termine, el test se <strong>cerrará automáticamente</strong>.</li>
+                </ul>
+            {% elif tipo_test == "tecnica" %}
+                <p class="instructions-title">📌 ¿En qué consiste?</p>
+                <p>Evalúa tus <strong>conocimientos técnicos</strong> en relación al cargo que postulas.</p>
+
+                <p class="instructions-title">⏳ Tiempo disponible</p>
+                <p class="highlight">30 minutos</p>
+
+                <p class="instructions-title">✅ ¿Cómo responder?</p>
+                <ul>
+                    <li>Responde cada pregunta eligiendo una única alternativa.</li>
+                    <li><span class="highlight">Cada respuesta correcta vale 2 puntos.</span></li>
+                </ul>
+
+            {% elif tipo_test == "raven" %}
+                <p class="instructions-title">📌 ¿En qué consiste?</p>
+                <p>Evalúa <strong>tu capacidad de razonamiento lógico y abstracto.</strong></p>
+
+                <p class="instructions-title">✅ ¿Cómo responder?</p>
+                <ul>
+                    <li>Se te mostrarán figuras incompletas.</li>
+                    <li>Selecciona la opción correcta que mejor complete la figura.</li>
+                </ul>
+
+                <p class="instructions-title">⏳ Tiempo disponible</p>
+                <p class="highlight">30 minutos</p>
+
+            {% elif tipo_test == "ipv" %}
+                <p class="instructions-title">📌 ¿En qué consiste?</p>
+                <p>Evalúa tus <strong>preferencias y valores personales.</strong></p>
+
+                <p class="instructions-title">✅ ¿Cómo responder?</p>
+                <ul>
+                    <li>Se te presentarán diferentes situaciones con opciones de respuesta.</li>
+                    <li><span class="highlight">No hay respuestas correctas o incorrectas.</span></li>
+                    <li>Elige la opción que mejor refleje tu forma de pensar.</li>
+                </ul>
+
+                <p class="instructions-title">⏳ Tiempo disponible</p>
+                <p class="highlight">40 minutos</p>
+
+            {% else %}
+                <p class="text-center text-danger">⚠ No hay instrucciones disponibles para este test.</p>
+            {% endif %}
+
+        </div>
+
+        <!-- 🔹 Nueva redirección a la captura de datos antes de iniciar el test -->
+        <form method="POST" action="{% url 'tests_psicologicos:captura_datos' tipo_test=tipo_test codigo_unico=codigo_unico %}">
+            {% csrf_token %}
+            <button type="submit" class="btn btn-primary w-100">Continuar</button>
+        </form>
+    </div>
+</body>
+</html>

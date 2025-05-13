@@ -1,0 +1,206 @@
+{% extends 'psicologos/base.html' %}
+{% block page_content %}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Resumen de Tests</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+
+    <style>
+        body {
+            background-color: #f8f9fa;
+        }
+
+        .table-container {
+            max-height: 650px;
+            overflow-y: auto;
+            overflow-x: auto;
+            border: 2px solid #343a40;
+            border-radius: 8px;
+            padding: 5px;
+            position: relative;
+        }
+
+        .table {
+            min-width: 3000px;
+            border-collapse: collapse;
+        }
+
+        thead {
+            background-color: #343a40;
+            color: white;
+            position: sticky;
+            top: 0;
+            z-index: 2;
+        }
+
+        th, td {
+            padding: 10px;
+            text-align: center;
+            min-width: 150px;
+            white-space: nowrap;
+            border-bottom: 2px solid #dee2e6;
+        }
+
+        th:first-child, td:first-child,
+        th:nth-child(2), td:nth-child(2),
+        th:nth-child(3), td:nth-child(3) {
+            position: sticky;
+            left: 0;
+            background-color: white;
+            z-index: 3;
+            font-weight: bold;
+            border-right: 2px solid #ddd;
+        }
+
+        tbody tr:nth-child(odd) { background-color: #f8f9fa; }
+        tbody tr:nth-child(even) { background-color: #e9ecef; }
+
+        .header-group { background-color: #007bff; color: white; }
+        .header-group-ic { background-color: #28a745; color: white; }
+        .header-group-bip { background-color: #ffc107; color: black; }
+        .header-group-disc { background-color: #ff5733; color: white; }
+        .header-group-tecnica { background-color: #17a2b8; color: white; }
+
+        .columna-final {
+            border-right: 4px solid black !important;
+        }
+    </style>
+</head>
+<body class="container mt-4">
+    <h1 class="text-center text-primary">📊 Resumen de Tests</h1>
+
+    <div class="table-container">
+        <table class="table table-bordered text-center">
+            <thead>
+                <tr>
+                    <th rowspan="2">ID</th>
+                    <th rowspan="2">RUT</th>
+                    <th rowspan="2">Nombre</th>
+                    <th colspan="6" class="header-group">Wonderlic</th>  
+                    <th colspan="6" class="header-group-ic">IC</th>  
+                    <th colspan="5" class="header-group-bip">BIP</th>  
+                    <th colspan="3" class="header-group-disc">DISC</th>  
+                    <th colspan="7" class="header-group-tecnica">TÉCNICA</th>  
+                    <th colspan="14" class="header-group-ipv">IPV</th>
+                </tr>
+                <tr>
+                    <th>Ingreso</th>
+                    <th>Envío</th>
+                    <th>Puntaje</th>
+                    <th>Potencial</th>
+                    <th>Duración</th>
+                    <th class="columna-final">Fecha</th>
+
+                    <th>Ingreso</th>
+                    <th>Envío</th>
+                    <th>Perfil</th>
+                    <th>Puntaje</th>
+                    <th>Duración</th>
+                    <th class="columna-final">Fecha</th>
+
+                    <th>Ingreso</th>
+                    <th>Envío</th>
+                    <th>Link</th>
+                    <th>Duración</th>
+                    <th class="columna-final">Fecha</th>
+
+                    <th>Ingreso</th>
+                    <th>Envío</th>
+                    <th class="columna-final">Perfil</th>
+
+                    <th>Ingreso</th>
+                    <th>Inicio</th>
+                    <th>Envío</th>
+                    <th>Puntaje</th>
+                    <th>Nota</th>
+                    <th>Duración</th>
+                    <th class="columna-final">Fecha</th>
+
+                    <th>Envío</th>
+                    <th>DGV</th>
+                    <th>R</th>
+                    <th>A</th>
+                    <th>I</th>
+                    <th>II</th>
+                    <th>III</th>
+                    <th>IV</th>
+                    <th>V</th>
+                    <th>VI</th>
+                    <th>VII</th>
+                    <th>VIII</th>
+                    <th>IX</th>
+                    <th>Duración</th>
+                    <th class="columna-final">Fecha</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for participante in resumen %}
+                <tr>
+                    <td>{{ participante.id }}</td>
+                    <td>{{ participante.rut }}</td>
+                    <td>{{ participante.nombre }}</td>
+
+                    <td>{{ participante.wonderlic.ingreso }}</td>
+                    <td class="{% if participante.wonderlic.envio == '✅' %}table-success{% else %}table-danger{% endif %}">{{ participante.wonderlic.envio }}</td>
+                    <td>{{ participante.wonderlic.puntaje }}</td>
+                    <td>{{ participante.wonderlic.potencial }}</td>
+                    <td>{{ participante.wonderlic.duracion }}</td>
+                    <td class="columna-final">{{ participante.wonderlic.fecha }}</td>
+
+                    <td>{{ participante.ic.ingreso }}</td>
+                    <td class="{% if participante.ic.envio == '✅' %}table-success{% else %}table-danger{% endif %}">{{ participante.ic.envio }}</td>
+                    <td>{{ participante.ic.perfil }}</td>
+                    <td>{{ participante.ic.puntaje }}</td>
+                    <td>{{ participante.ic.duracion }}</td>
+                    <td class="columna-final">{{ participante.ic.fecha }}</td>
+
+                    <td>{{ participante.bip.ingreso }}</td>
+                    <td class="{% if participante.bip.envio == '✅' %}table-success{% else %}table-danger{% endif %}">{{ participante.bip.envio }}</td>
+                    <td>
+                        {% if participante.bip.link_xml %}
+                            <a href="{{ participante.bip.link_xml }}" target="_blank" class="btn btn-primary btn-sm">📄 Ver XML</a>
+                        {% else %}
+                            ❌
+                        {% endif %}
+                    </td>
+                    <td>{{ participante.bip.duracion }}</td>
+                    <td class="columna-final">{{ participante.bip.fecha }}</td>
+
+                    <td>{{ participante.disc.ingreso }}</td>
+                    <td class="{% if participante.disc.envio == '✅' %}table-success{% else %}table-danger{% endif %}">{{ participante.disc.envio }}</td>
+                    <td class="columna-final">{{ participante.disc.perfil }}</td>
+
+                    <td>{{ participante.tecnica.ingreso }}</td>
+                    <td>{{ participante.tecnica.inicio }}</td>
+                    <td class="{% if participante.tecnica.envio == '✅' %}table-success{% else %}table-danger{% endif %}">{{ participante.tecnica.envio }}</td>
+                    <td>{{ participante.tecnica.puntaje }}</td>
+                    <td>{{ participante.tecnica.nota }}</td>
+                    <td>{{ participante.tecnica.duracion }}</td>
+                    <td class="columna-final">{{ participante.tecnica.fecha }}</td>
+
+                    <td class="{% if participante.ipv.envio == '✅' %}table-success{% else %}table-danger{% endif %}">{{ participante.ipv.envio }}</td>
+                    <td>{{ participante.ipv.dgv }}</td>
+                    <td>{{ participante.ipv.r }}</td>
+                    <td>{{ participante.ipv.a }}</td>
+                    <td>{{ participante.ipv.i }}</td>
+                    <td>{{ participante.ipv.ii }}</td>
+                    <td>{{ participante.ipv.iii }}</td>
+                    <td>{{ participante.ipv.iv }}</td>
+                    <td>{{ participante.ipv.v }}</td>
+                    <td>{{ participante.ipv.vi }}</td>
+                    <td>{{ participante.ipv.vii }}</td>
+                    <td>{{ participante.ipv.viii }}</td>
+                    <td>{{ participante.ipv.ix }}</td>
+                    <td>{{ participante.ipv.duracion }}</td>
+                    <td class="columna-final">{{ participante.ipv.fecha }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</body>
+</html>
+{% endblock %}

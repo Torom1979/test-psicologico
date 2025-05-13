@@ -1,0 +1,15 @@
+{% extends 'psicologos/base.html' %}
+{% block page_content %}
+
+<h4>Editar Contraseña para {{ usuario.username }}</h4>
+<form method="post">
+    {% csrf_token %}
+    <div class="form-group">
+        <label>Nueva Contraseña</label>
+        <input type="password" name="password" class="form-control" required>
+    </div>
+    <button type="submit" class="btn btn-success mt-2">Actualizar</button>
+    <a href="{% url 'psicologos:listar_psicologos' %}" class="btn btn-secondary mt-2">Cancelar</a>
+</form>
+
+{% endblock %}

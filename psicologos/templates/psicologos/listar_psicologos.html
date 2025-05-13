@@ -1,0 +1,121 @@
+{% extends 'psicologos/base.html' %}
+{% load custom_filters %}
+{% block page_content %}
+<div class="card shadow mb-4">
+    <!-- Card Header -->
+    <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+        <h6 class="m-0 font-weight-bold text-primary">Listado de Psicólogos</h6>
+        <div class="dropdown no-arrow">
+            <button class="btn btn-success dropdown-toggle" type="button" id="btnCrearPsicologo" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                Crear Psicólogo
+            </button>
+        </div>
+    </div>
+
+    <!-- Card Body -->
+    <div class="card-body">
+        {% if messages %}
+        {% for message in messages %}
+            <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+            {{ message }}
+            <button type="button" class="close" data-dismiss="alert" aria-label="Cerrar">
+                <span aria-hidden="true">&times;</span>
+            </button>
+            </div>
+        {% endfor %}
+        {% endif %}
+        {% if not psicologos %}
+            <div class="alert alert-info">No hay psicólogos registrados.</div>
+        {% else %}
+        <div class="table-responsive">
+            <table class="table table-striped table-hover">
+                <thead class="thead-light">
+                    <tr>
+                        <th>Nombre</th>
+                        <th>Usuario</th>
+                        <th>Email</th>
+                        <th>Último ingreso</th>
+                        <th>Tests este mes</th>
+                        <th>Tests mes pasado</th>
+                        <th>Activo</th>
+                        <th>Editar</th>
+                        <th>Eliminar</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for user in psicologos %}
+                    <tr>
+                        <td>{{ user.first_name }} {{ user.last_name }}</td>
+                        <td>{{ user.username }}</td>
+                        <td>{{ user.email }}</td>
+                        <td>{{ user.ultimo_acceso|date:"d/m/Y H:i" }}</td>
+                       {% with resumen|get_item:user.id as datos %}
+                            {% if datos %}
+                                <td>{{ datos.mes_actual }}</td>
+                                <td>{{ datos.mes_anterior }}</td>
+                            {% else %}
+                                <td>0</td>
+                                <td>0</td>
+                            {% endif %}
+                        {% endwith %}
+
+                        <td class="text-center">
+                            <input type="checkbox" class="toggle-active" data-user-id="{{ user.id }}" {% if user.is_active %}checked{% endif %}>
+                        </td>
+                        <td>
+                            <a href="{% url 'psicologos:editar_psicologo' user.id %}" class="btn btn-warning btn-circle btn-sm" title="Editar contraseña">
+                                <i class="fas fa-edit"></i>
+                            </a>
+                        </td>
+                        <td>
+                            <a href="{% url 'psicologos:eliminar_psicologo' user.id %}" class="btn btn-danger btn-circle btn-sm" title="Eliminar usuario" onclick="return confirm('¿Estás seguro de eliminar este psicólogo?')">
+                                <i class="fas fa-trash-alt"></i>
+                            </a>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}
+
+{% block js_page %}
+<script>
+    $(document).ready(function(){
+        $('.table').DataTable();
+
+        $('#btnCrearPsicologo').on('click', function() {
+            window.location.href = "{% url 'psicologos:crear_psicologo' %}";
+        });
+    });
+document.addEventListener('DOMContentLoaded', function() {
+    document.querySelectorAll('.toggle-active').forEach(function(checkbox) {
+        checkbox.addEventListener('change', function() {
+            const userId = this.dataset.userId;
+            const isActive = this.checked;
+
+            fetch("{% url 'psicologos:toggle_activo' %}", {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': '{{ csrf_token }}'
+                },
+                body: JSON.stringify({
+                    user_id: userId,
+                    is_active: isActive
+                })
+            }).then(res => res.json()).then(data => {
+                if (data.success) {
+                    console.log('Estado actualizado');
+                } else {
+                    alert('Error al actualizar el estado');
+                }
+            });
+        });
+    });
+});    
+</script>
+{% endblock %}

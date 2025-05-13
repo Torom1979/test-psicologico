@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test {{ tipo_test|title }}</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+
+    <script>
+        function iniciarCuentaRegresiva(tiempoRestante) {
+            if (isNaN(tiempoRestante) || tiempoRestante <= 0) {
+                console.warn("⚠ No hay tiempo restante válido.");
+                return;
+            }
+
+            let minutos = Math.floor(tiempoRestante);
+            let segundos = 0;
+
+            function actualizarTiempo() {
+                if (minutos === 0 && segundos === 0) {
+                    console.log("⏳ Tiempo agotado, enviando formulario...");
+                    document.getElementById("test-form").submit();
+                    return;
+                }
+
+                if (segundos === 0 && minutos > 0) {
+                    minutos--;
+                    segundos = 59;
+                } else {
+                    segundos--;
+                }
+
+                document.getElementById("cuenta-regresiva").innerText = minutos + "m " + segundos + "s";
+                setTimeout(actualizarTiempo, 1000);
+            }
+
+            actualizarTiempo();
+        }
+
+        document.addEventListener("DOMContentLoaded", function() {
+            let tiempo = parseInt("{{ tiempo_limite|default:0 }}", 10);
+            if (!isNaN(tiempo) && tiempo > 0 && "{{ test_iniciado }}" === "True") {
+                iniciarCuentaRegresiva(tiempo);
+            }
+        });
+    </script>
+</head>
+<body class="container mt-5">
+    <div class="card shadow-lg p-4">
+        <h1 class="text-center text-primary">Test: {{ tipo_test|title }}</h1>
+
+        <!-- 🔹 SECCIÓN DE INSTRUCCIONES (Siempre Visible) -->
+        <div class="alert alert-info">
+            <h4 class="alert-heading">📜 Instrucciones</h4>
+            <p class="fw-bold">Este test está diseñado para evaluar tu <span class="text-primary">capacidad de razonamiento, lógica y resolución de problemas</span> en un tiempo <strong>limitado de 12 minutos</strong>.</p>
+            <hr>
+            <ul class="list-group mb-3">
+                <li class="list-group-item">✔️ Contiene <strong>50 preguntas</strong> de distintos tipos: <span class="text-danger">matemáticas, lógica, comprensión verbal y razonamiento abstracto</span>.</li>
+                <li class="list-group-item">✔️ Cada pregunta tiene <strong>4 opciones de respuesta (A, B, C, D)</strong>, y solo <strong>una es correcta</strong>.</li>
+                <li class="list-group-item">✔️ Debes responder la <strong>mayor cantidad posible de preguntas</strong> dentro del <strong>límite de 12 minutos</strong>.</li>
+                <li class="list-group-item">✔️ <span class="text-danger">No se permite el uso de calculadora</span>.</li>
+            </ul>
+
+            <!-- 🔹 EJEMPLO 1 - Pregunta de sinónimos -->
+            <h5 class="fw-bold text-dark">📍 Ejemplo 1 - Pregunta de sinónimos</h5>
+            <p class="fst-italic">"El término 'Expandir' significa:"</p>
+            <form>
+                <div class="form-check">
+                    <input class="form-check-input" type="radio" name="ejemplo1" id="ejemplo1A">
+                    <label class="form-check-label" for="ejemplo1A">A) Crecer ✅</label>
+                </div>
+                <div class="form-check">
+                    <input class="form-check-input" type="radio" name="ejemplo1" id="ejemplo1B">
+                    <label class="form-check-label" for="ejemplo1B">B) Reducir</label>
+                </div>
+                <div class="form-check">
+                    <input class="form-check-input" type="radio" name="ejemplo1" id="ejemplo1C">
+                    <label class="form-check-label" for="ejemplo1C">C) Olvidar</label>
+                </div>
+                <div class="form-check">
+                    <input class="form-check-input" type="radio" name="ejemplo1" id="ejemplo1D">
+                    <label class="form-check-label" for="ejemplo1D">D) Detener</label>
+                </div>
+            </form>
+
+            <!-- 🔹 EJEMPLO 2 - Pregunta matemática -->
+            <h5 class="fw-bold text-dark mt-3">📍 Ejemplo 2 - Pregunta matemática</h5>
+            <p class="fst-italic">"Si un tren viaja a 80 km/h, ¿cuántos kilómetros recorrerá en 3 horas?"</p>
+            <form>
+                <div class="form-check">
+                    <input class="form-check-input" type="radio" name="ejemplo2" id="ejemplo2A">
+                    <label class="form-check-label" for="ejemplo2A">A) 160 km</label>
+                </div>
+                <div class="form-check">
+                    <input class="form-check-input" type="radio" name="ejemplo2" id="ejemplo2B">
+                    <label class="form-check-label" for="ejemplo2B">B) 180 km ✅</label>
+                </div>
+                <div class="form-check">
+                    <input class="form-check-input" type="radio" name="ejemplo2" id="ejemplo2C">
+                    <label class="form-check-label" for="ejemplo2C">C) 200 km</label>
+                </div>
+                <div class="form-check">
+                    <input class="form-check-input" type="radio" name="ejemplo2" id="ejemplo2D">
+                    <label class="form-check-label" for="ejemplo2D">D) 240 km</label>
+                </div>
+            </form>
+
+            <p class="text-warning mt-4"><strong>📢 ¡Recuerda que el tiempo es limitado, así que responde rápido y con precisión!</strong></p>
+
+            {% if not test_iniciado %}
+            <form method="POST">
+                {% csrf_token %}
+                <button type="submit" name="iniciar_test" class="btn btn-primary w-100">🚀 Iniciar Test</button>
+            </form>
+            {% endif %}
+        </div>
+
+        <!-- 🔹 SECCIÓN DEL TEST (Solo se muestra si ya se inició) -->
+        {% if test_iniciado %}
+        <div class="text-center mb-3">
+            <p class="text-danger fs-5">⏳ Tiempo restante: <span id="cuenta-regresiva" class="fw-bold">{{ tiempo_limite }}</span></p>
+        </div>
+
+        <form id="test-form" method="POST" action="{% url 'tests_psicologicos:resultado_test' tipo_test=tipo_test rut=rut %}">
+            {% csrf_token %}
+           {% for pregunta in preguntas %}
+            <div class="card mb-3">
+                <div class="card-body">
+                    <h5 class="card-title">{{ forloop.counter }}. {{ pregunta.texto_pregunta }}</h5>
+                    {% for opcion, texto in pregunta.opciones %}
+                    <div class="form-check">
+                        <input class="form-check-input" type="radio" name="pregunta_{{ pregunta.id }}" value="{{ opcion }}" required>
+                        <label class="form-check-label">{{ texto }}</label>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+            {% endfor %}
+            <button type="submit" class="btn btn-success w-100">✔ Enviar Respuestas</button>
+        </form>
+        {% endif %}
+    </div>
+</body>
+</html>

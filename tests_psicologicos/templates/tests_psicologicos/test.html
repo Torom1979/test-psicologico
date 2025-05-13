@@ -1,0 +1,329 @@
+{% load custom_filters %}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta http-equiv="Cache-Control" content="no-store, no-cache, must-revalidate, max-age=0">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="0">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test {{ tipo_test|title }}</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+    <script>
+        let tiempoRestante = parseInt("{{ tiempo_limite|default:0 }}", 10);
+        function iniciarCuentaRegresiva() {
+            if (isNaN(tiempoRestante) || tiempoRestante <= 0) return;
+            function actualizarTiempo() {
+                if (tiempoRestante <= 0) {
+                    Swal.fire({
+                        icon: "error",
+                        title: "⏳ ¡Tiempo agotado!",
+                        text: "Tu tiempo ha finalizado. El test será enviado automáticamente.",
+                        confirmButtonText: "Aceptar",
+                    }).then(() => {
+                        document.getElementById("test-form").submit();
+                    });
+                    return;
+                }
+                let min = Math.floor(tiempoRestante / 60);
+                let seg = tiempoRestante % 60;
+                document.getElementById("cuenta-regresiva").innerText = `${min}:${seg.toString().padStart(2, '0')}`;
+                tiempoRestante--;
+                setTimeout(actualizarTiempo, 1000);
+            }
+            actualizarTiempo();
+        }
+        document.addEventListener("DOMContentLoaded", () => {
+            if (!isNaN(tiempoRestante) && tiempoRestante > 0) iniciarCuentaRegresiva();
+        });
+    </script>
+
+    <style>
+        body { background-color: #f8f9fa; }
+        .card { animation: fadeIn 0.6s ease-in-out; }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .countdown { font-size: 1.5rem; font-weight: bold; }
+    </style>
+</head>
+<body class="container mt-5">
+    <div class="card shadow-lg p-4">
+        <h1 class="text-center text-primary">Test: {{ tipo_test|title }}</h1>
+        <div class="text-center mb-3">
+            <p class="text-danger countdown">⏳ Tiempo restante: <span id="cuenta-regresiva" class="fw-bold">{{ tiempo_limite }}</span></p>
+        </div>
+
+        <form id="test-form" method="POST" action="{% url 'tests_psicologicos:test_view' tipo_test=tipo_test codigo_unico=codigo_unico %}">
+            {% csrf_token %}
+
+            {% if tipo_test == "ic" %}
+            <!-- Instrucciones test IC -->
+            <div class="position-sticky top-0 z-3 bg-white shadow-sm py-3 px-4 mb-3 border-start border-primary border-4">
+                <h5 class="mb-2 text-primary fw-bold text-center">Reglas del Test IC</h5>
+                <div class="row small text-center">
+                    <div class="col fw-bold">Columna 1</div>
+                    <div class="col fw-bold">Columna 2</div>
+                    <div class="col fw-bold">Columna 3</div>
+                </div>
+                <div class="row small text-center">
+                    <div class="col">Incendios o Accidentes<br>1.500 - 4.500<br>15/03/16 - 10/05/17</div>
+                    <div class="col">Vida o Accidentes<br>≤ 3.000<br>15/10/16 - 20/08/17</div>
+                    <div class="col">Incendios o Vida<br>2.000 - 5.000<br>10/02/16 - 15/06/17</div>
+                </div>
+            </div>
+
+            <!-- Tabla preguntas tipo IC -->
+            <div class="table-responsive">
+                <table class="table table-bordered align-middle">
+                    <thead class="table-light text-center">
+                        <tr>
+                            <th class="text-start">Pregunta</th>
+                            <th>Columna 1</th>
+                            <th>Columna 2</th>
+                            <th>Columna 3</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for pregunta in preguntas %}
+                        <tr class="pregunta">
+                            <td class="text-start fw-semibold">
+                                <span class="text-primary fw-bold me-2">{{ forloop.counter }}.</span>
+                                {{ pregunta.texto_pregunta }}
+                            </td>
+                            {% for opcion, texto in pregunta.opciones %}
+                            <td class="text-center">
+                                <input class="form-check-input" type="checkbox" name="pregunta_{{ pregunta.id }}" value="{{ opcion }}"
+                                    {% if respuestas_guardadas|get_item:pregunta.id and opcion in respuestas_guardadas|get_item:pregunta.id %}checked{% endif %}
+                                    onchange="guardarRespuestaCheckbox('{{ pregunta.id }}')">
+                            </td>
+                            {% endfor %}
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            {% elif tipo_test == "disc" %}
+                <div class="table-responsive mb-4">
+                    <table class="table table-bordered align-middle text-center">
+                        <thead class="table-light">
+                            <tr>
+                                <th class="text-start">Ítem</th>
+                                <th>+</th>
+                                <th>−</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for pregunta in preguntas %}
+                            <tr class="pregunta align-middle">
+                                <td class="text-start fw-semibold">
+                                    <ul class="list-unstyled mb-0">
+                                        {% for opcion, texto in pregunta.opciones %}
+                                        <li>{{ texto }}</li>
+                                        {% endfor %}
+                                    </ul>
+                                </td>
+                                <td>
+                                    {% for opcion, texto in pregunta.opciones %}
+                                    {% with pregunta.id|stringformat:"s.mas" as clave_mas %}
+                                    <div class="form-check text-center">
+                                        <input type="radio" name="pregunta_{{ pregunta.id }}_mas" value="{{ opcion }}"
+                                            class="form-check-input"
+                                            onchange="guardarRespuestaDisc('{{ pregunta.id }}')"
+                                            {% if respuestas_guardadas|get_disc_item:clave_mas == opcion %}checked{% endif %}>
+                                    </div>
+                                    {% endwith %}
+                                    {% endfor %}
+                                </td>
+                                <td>
+                                    {% for opcion, texto in pregunta.opciones %}
+                                    {% with pregunta.id|stringformat:"s.menos" as clave_menos %}
+                                    <div class="form-check text-center">
+                                        <input type="radio" name="pregunta_{{ pregunta.id }}_menos" value="{{ opcion }}"
+                                            class="form-check-input"
+                                            onchange="guardarRespuestaDisc('{{ pregunta.id }}')"
+                                            {% if respuestas_guardadas|get_disc_item:clave_menos == opcion %}checked{% endif %}>
+                                    </div>
+                                    {% endwith %}
+                                    {% endfor %}
+                                </td>
+
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            
+            {% else %}
+            <!-- Tarjetas para otros tests -->
+            {% for pregunta in preguntas %}
+            <div class="card mb-3 pregunta">
+                <div class="card-body">
+                    <h5 class="card-title">
+                        <span class="text-primary fw-bold me-2">{{ forloop.counter }}.</span>
+                        {{ pregunta.texto_pregunta }}
+                    </h5>
+                    {% for opcion, texto in pregunta.opciones %}
+                    <div class="form-check">
+                        <input class="form-check-input" type="radio" name="pregunta_{{ pregunta.id }}" value="{{ opcion }}"
+                            {% if respuestas_guardadas|get_item:pregunta.id == opcion %}checked{% endif %}
+                            onchange="guardarRespuesta('{{ pregunta.id }}', '{{ opcion }}')">
+                        <label class="form-check-label">{{ texto }}</label>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+            {% endfor %}
+            {% endif %}
+
+            <button type="submit" class="btn btn-success w-100" onclick="validarFormulario(event)">✔ Finalizar Test</button>
+        </form>
+    </div>
+
+    <script>
+    function guardarRespuesta(preguntaId, valor) {
+        const formData = new FormData();
+        formData.append("pregunta_id", preguntaId);
+        formData.append("respuesta", valor);
+        formData.append("csrfmiddlewaretoken", '{{ csrf_token }}');
+
+        fetch("{% url 'tests_psicologicos:guardar_respuesta_ajax' %}", {
+            method: "POST",
+            body: formData,
+        });
+    }
+
+    function guardarRespuestaCheckbox(preguntaId) {
+        const checkboxes = document.querySelectorAll(`input[name='pregunta_${preguntaId}']:checked`);
+        const valores = Array.from(checkboxes).map(cb => cb.value);
+
+        const formData = new FormData();
+        formData.append("pregunta_id", preguntaId);
+        formData.append("respuesta", JSON.stringify(valores));
+        formData.append("csrfmiddlewaretoken", '{{ csrf_token }}');
+
+        fetch("{% url 'tests_psicologicos:guardar_respuesta_ajax' %}", {
+            method: "POST",
+            body: formData,
+        });
+    }
+
+    function validarFormulario(event) {
+        let preguntas = document.querySelectorAll('.pregunta');
+        let todasRespondidas = true;
+        let preguntasNoRespondidas = [];
+
+        preguntas.forEach((pregunta, index) => {
+            let opciones = pregunta.querySelectorAll('input[type="radio"]');
+            let algunaSeleccionada = Array.from(opciones).some(opcion => opcion.checked);
+
+            if (!algunaSeleccionada) {
+                todasRespondidas = false;
+                pregunta.classList.add("border", "border-danger", "p-2");
+                preguntasNoRespondidas.push(index + 1);  // Número de pregunta (1-indexed)
+            } else {
+                pregunta.classList.remove("border", "border-danger", "p-2");
+            }
+        });
+
+        if ("{{ tipo_test }}" === "bip" && !todasRespondidas) {
+            event.preventDefault();
+
+            Swal.fire({
+                icon: "warning",
+                title: "⚠ Faltan respuestas",
+                html: "Debes contestar todas las preguntas.<br><br>" +
+                      "Preguntas sin responder: <strong>" + preguntasNoRespondidas.join(", ") + "</strong>",
+                confirmButtonText: "Entendido",
+                confirmButtonColor: "#d33"
+            }).then(() => {
+                if (preguntasNoRespondidas.length > 0) {
+                    const target = preguntas[preguntasNoRespondidas[0] - 1];
+                    const offset = 100;  // puedes ajustar este valor según el padding superior de tu layout
+                    const y = target.getBoundingClientRect().top + window.scrollY - offset;
+
+                    window.scrollTo({ top: y, behavior: "smooth" });
+                }
+            });
+            return false;
+        }
+
+        // Otros tests
+        if ("{{ tipo_test }}" !== "wonderlic" && "{{ tipo_test }}" !== "ic" && !todasRespondidas) {
+            event.preventDefault();
+            Swal.fire({
+                icon: "warning",
+                title: "⚠ Responde todas las preguntas",
+                text: "Debes contestar todas las preguntas antes de finalizar el test.",
+                confirmButtonText: "Entendido",
+                confirmButtonColor: "#3085d6"
+            });
+            return false;
+        }
+
+        // Wonderlic puede enviarse incompleto
+        if ("{{ tipo_test }}" === "wonderlic" && !todasRespondidas) {
+            event.preventDefault();
+            Swal.fire({
+                icon: "info",
+                title: "🚨 ¡Faltan preguntas!",
+                text: "No has respondido todas las preguntas, pero puedes enviar el test si lo deseas.",
+                showCancelButton: true,
+                confirmButtonText: "Sí, enviar ahora",
+                cancelButtonText: "Volver al test",
+                confirmButtonColor: "#28a745",
+                cancelButtonColor: "#d33"
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    window.onbeforeunload = null;
+                    document.getElementById("test-form").submit();
+                }
+            });
+            return false;
+        }
+
+        // ✅ Todo respondido o permitido
+        window.onbeforeunload = null;
+        document.getElementById("test-form").submit();
+    }
+
+    function guardarRespuestaDisc(preguntaId) {
+        const mas = document.querySelector(`input[name='pregunta_${preguntaId}_mas']:checked`);
+        const menos = document.querySelector(`input[name='pregunta_${preguntaId}_menos']:checked`);
+
+        const mas_valor = mas ? mas.value : null;
+        const menos_valor = menos ? menos.value : null;
+
+        if (mas_valor && menos_valor && mas_valor === menos_valor) {
+            Swal.fire({
+                icon: "error",
+                title: "⚠ No válido",
+                text: "No puedes seleccionar la misma palabra como 'más' y 'menos'.",
+            });
+            mas.checked = false;
+            menos.checked = false;
+            return;
+        }
+
+        const formData = new FormData();
+        formData.append("pregunta_id", preguntaId);
+        formData.append("respuesta", JSON.stringify({
+            mas: mas_valor,
+            menos: menos_valor
+        }));
+        formData.append("csrfmiddlewaretoken", '{{ csrf_token }}');
+
+        fetch("{% url 'tests_psicologicos:guardar_respuesta_ajax' %}", {
+            method: "POST",
+            body: formData,
+        });
+    }
+
+
+    </script>
+    
+</body>
+</html>
