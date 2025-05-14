@@ -15,19 +15,26 @@
                     const input = document.getElementById("link-" + slug);
                     input.value = data.link;
 
-                    // Copiar al portapapeles
-                    input.select();
-                    input.setSelectionRange(0, 99999); // Para móviles
-                    document.execCommand("copy");
-
-                    // Mostrar toast
-                    const toastElement = document.getElementById('toast-copiado');
-                    const toast = new bootstrap.Toast(toastElement);
-                    toast.show();
+                    // Intentar copiar usando Clipboard API moderna
+                    navigator.clipboard.writeText(data.link)
+                        .then(() => {
+                            // Mostrar toast si se copió correctamente
+                            const toastElement = document.getElementById('toast-copiado');
+                            const toast = new bootstrap.Toast(toastElement);
+                            toast.show();
+                        })
+                        .catch(err => {
+                            // Si falla, seleccionar el texto como respaldo
+                            input.select();
+                            input.setSelectionRange(0, 99999);
+                            document.execCommand("copy");
+                            alert("El navegador no permite copiar automáticamente. Copia manualmente.");
+                        });
                 }
             });
     }
 </script>
+
 
 <body class="container mt-4">
     <h1 class="text-center mb-4">Generar Link para Tests Psicológicos</h1>
