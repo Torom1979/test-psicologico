@@ -9,6 +9,8 @@ import random
 import string
 from django.http import JsonResponse
 
+from django.utils.timezone import now, localdate, timedelta
+
 def lista_tests(request):
     """ Vista que muestra los tests para el administrador. """
     tests = [
@@ -171,6 +173,10 @@ def agradecimiento_test(request):
     return render(request, "tests_psicologicos/agradecimiento_test.html")
 
 
+from django.shortcuts import render, redirect, get_object_or_404
+from django.utils.timezone import now, timedelta
+from .models import InstruccionTest, SesionTest
+
 def instrucciones_test(request, tipo_test, codigo_unico):
     """ Vista para mostrar las instrucciones antes del test """
     instrucciones = InstruccionTest.objects.filter(tipo_test=tipo_test).first()
@@ -180,17 +186,25 @@ def instrucciones_test(request, tipo_test, codigo_unico):
     if sesion.completado:
         return redirect('tests_psicologicos:agradecimiento_test')
 
-    if request.method == "POST" and "aceptar_instrucciones" in request.POST:
+    if request.method == "POST":
+        # ✅ Asignar tiempo límite si aún no está definido
         if not sesion.fecha_fin:
             tiempos_limite = {
-                "wonderlic": 12, "raven": 30, "ic": 7,
-                "bip": 120, "disc": 45, "kostick": 15,
-                "tecnica": 30, "ipv": 40
+                "wonderlic": 12,
+                "raven": 30,
+                "ic": 7,
+                "bip": 120,
+                "disc": 45,
+                "kostick": 15,
+                "tecnica": 30,
+                "ipv": 40
             }
-            tiempo_limite = tiempos_limite.get(tipo_test, 20)
-            sesion.fecha_fin = now() + timedelta(minutes=tiempo_limite)
+            minutos = tiempos_limite.get(tipo_test, 20)
+            sesion.fecha_fin = now() + timedelta(minutes=minutos)
             sesion.save(update_fields=["fecha_fin"])
-        return redirect('tests_psicologicos:test_view', tipo_test=tipo_test, codigo_unico=codigo_unico)
+
+        # 👉 Después de aceptar las instrucciones, redirige al ingreso de RUT
+        return redirect('tests_psicologicos:ingresar_rut', tipo_test=tipo_test, codigo_unico=codigo_unico)
 
     return render(request, "tests_psicologicos/instrucciones_test.html", {
         "tipo_test": tipo_test,
@@ -198,16 +212,32 @@ def instrucciones_test(request, tipo_test, codigo_unico):
         "instrucciones": instrucciones
     })
 
+
 def captura_datos(request, tipo_test, codigo_unico):
     sesion = get_object_or_404(SesionTest, codigo_unico=codigo_unico)
 
     if sesion.completado:
-       return redirect('tests_psicologicos:agradecimiento_test')
-    
+        return redirect('tests_psicologicos:agradecimiento_test')
+
     if sesion.fecha_fin and now() >= sesion.fecha_fin:
-     sesion.completado = True
-     sesion.save(update_fields=["completado"])
-     return redirect('tests_psicologicos:agradecimiento_test')
+        sesion.completado = True
+        sesion.save(update_fields=["completado"])
+        return redirect('tests_psicologicos:agradecimiento_test')
+
+    
+    from django.contrib import messages
+    # 🧐 Validar si el mismo RUT y test ya fueron ingresados hoy
+    if sesion.rut:
+        hoy = localdate()
+        existe = SesionTest.objects.filter(
+            rut=sesion.rut,
+            test=tipo_test,
+            fecha_inicio__date=hoy
+        ).exclude(pk=sesion.pk).exists()
+
+        if existe:
+            messages.info(request, "Ya registraste tus datos hoy. Serás redirigido directamente al test.")
+            return redirect('tests_psicologicos:test_view', tipo_test=tipo_test, codigo_unico=codigo_unico)
 
     if request.method == "POST":
         nombre = request.POST.get("nombre")
@@ -234,7 +264,9 @@ def captura_datos(request, tipo_test, codigo_unico):
                 tiempo_limite = tiempos_limite.get(tipo_test, 20)
                 sesion.fecha_fin = now() + timedelta(minutes=tiempo_limite)
 
-            sesion.save(update_fields=["nombre", "rut", "edad", "sexo", "profesion", "correo", "fecha_fin"])
+            sesion.save(update_fields=[
+                "nombre", "rut", "edad", "sexo", "profesion", "correo", "fecha_fin"
+            ])
 
             return redirect('tests_psicologicos:test_view', tipo_test=tipo_test, codigo_unico=codigo_unico)
 
@@ -535,3 +567,42 @@ def guardar_respuesta_ajax(request):
 
     return HttpResponseBadRequest("Método no permitido")
 
+def ingresar_rut(request, tipo_test, codigo_unico):
+    sesion_actual = get_object_or_404(SesionTest, codigo_unico=codigo_unico)
+
+    if request.method == "POST":
+        rut = request.POST.get("rut")
+
+        if rut:
+            hoy = localdate()
+
+            # 🔍 Buscar otra sesión del mismo día con datos completos (de cualquier test)
+            sesion_completa = SesionTest.objects.filter(
+                rut=rut,
+                fecha_inicio__date=hoy
+            ).exclude(nombre__isnull=True).exclude(nombre='').first()
+
+            if sesion_completa:
+                # ✅ Copiar los datos a la sesión actual
+                sesion_actual.rut = rut
+                sesion_actual.nombre = sesion_completa.nombre
+                sesion_actual.edad = sesion_completa.edad
+                sesion_actual.sexo = sesion_completa.sexo
+                sesion_actual.profesion = sesion_completa.profesion
+                sesion_actual.correo = sesion_completa.correo
+                sesion_actual.save(update_fields=[
+                    "rut", "nombre", "edad", "sexo", "profesion", "correo"
+                ])
+
+                return redirect('tests_psicologicos:test_view', tipo_test=tipo_test, codigo_unico=codigo_unico)
+
+            else:
+                # No encontró sesión previa con datos → guardar RUT y redirigir a formulario
+                sesion_actual.rut = rut
+                sesion_actual.save(update_fields=["rut"])
+                return redirect('tests_psicologicos:captura_datos', tipo_test=tipo_test, codigo_unico=codigo_unico)
+
+    return render(request, "tests_psicologicos/ingresar_rut.html", {
+        "tipo_test": tipo_test,
+        "codigo_unico": codigo_unico
+    })
