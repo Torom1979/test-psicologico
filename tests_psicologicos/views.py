@@ -215,6 +215,7 @@ def instrucciones_test(request, tipo_test, codigo_unico):
 
 def captura_datos(request, tipo_test, codigo_unico):
     sesion = get_object_or_404(SesionTest, codigo_unico=codigo_unico)
+    rut_precargado = request.session.get("rut_ingresado")
 
     if sesion.completado:
         return redirect('tests_psicologicos:agradecimiento_test')
@@ -246,6 +247,7 @@ def captura_datos(request, tipo_test, codigo_unico):
         sexo = request.POST.get("sexo")
         profesion = request.POST.get("profesion")
         correo = request.POST.get("correo")
+        
 
         if nombre and rut and edad and sexo and profesion and correo:
             sesion.nombre = nombre
@@ -272,7 +274,8 @@ def captura_datos(request, tipo_test, codigo_unico):
 
     return render(request, "tests_psicologicos/captura_datos.html", {
         "tipo_test": tipo_test,
-        "codigo_unico": codigo_unico
+        "codigo_unico": codigo_unico,
+        "rut_precargado": rut_precargado 
     })
 
 
@@ -572,6 +575,7 @@ def ingresar_rut(request, tipo_test, codigo_unico):
 
     if request.method == "POST":
         rut = request.POST.get("rut")
+        request.session["rut_ingresado"] = rut
 
         if rut:
             hoy = localdate()
