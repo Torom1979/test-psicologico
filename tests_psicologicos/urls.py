@@ -1,5 +1,5 @@
 from django.urls import path
-from .views import agradecimiento_test, captura_datos, generar_link_test, instrucciones_test, lista_tests, resumen_tests, test_view, guardar_respuesta_ajax
+from .views import agradecimiento_test, captura_datos, generar_link_test, ingresar_rut, instrucciones_test, lista_tests, resumen_tests, test_view, guardar_respuesta_ajax
 from .views import guardar_respuesta_ajax
 from django.conf import settings
 from django.conf.urls.static import static
@@ -14,6 +14,9 @@ urlpatterns = [
     path('<str:tipo_test>/<str:codigo_unico>/', test_view, name='test_view'),
     path('agradecimiento/', agradecimiento_test, name='agradecimiento_test'),
     path("guardar_respuesta_ajax/", guardar_respuesta_ajax, name="guardar_respuesta_ajax"),
+    path('<str:tipo_test>/<str:codigo_unico>/ingresar-rut/', ingresar_rut, name='ingresar_rut'),
+
+
 ]
 
 # 🔹 Servir archivos de media solo en modo desarrollo
