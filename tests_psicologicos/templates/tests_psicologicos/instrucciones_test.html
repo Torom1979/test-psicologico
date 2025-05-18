@@ -324,8 +324,8 @@
         </div>
 
         <!-- 🔹 Nueva redirección a la captura de datos antes de iniciar el test -->
-        <form method="POST" action="{% url 'tests_psicologicos:captura_datos' tipo_test=tipo_test codigo_unico=codigo_unico %}">
-            {% csrf_token %}
+        <form method="POST">
+        {% csrf_token %}
             <button type="submit" class="btn btn-primary w-100">Continuar</button>
         </form>
     </div>
